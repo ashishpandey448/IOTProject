@@ -1,51 +1,93 @@
-#include <Blynk.h>
-#include <ESP8266WiFi.h>
-#include <BlynkSimpleEsp8266.h>
-
-char auth[] = "FDOeaN_ON3xv-JmkoW-k8EX7Eqsb4tq1";
-
-char ssid[] = "l";
-char pass[] = "12345678";
-
-int buzzer = D2;
-int LED1 = D3;
-int LED2 = D4;
-int smokeA0 = A0;
- 
-int sensorThres = 200;
-
+String voice;
+int Relay1 = 2;
+int Relay2 = 3 ;
+int Relay3 = 4;
+int Relay4 = 5;
+void Relay1On(){
+digitalWrite (Relay1, LOW);
+}
+void Relay1Off(){
+digitalWrite (Relay1, HIGH);
+}
+void Relay2On(){
+digitalWrite (Relay2, LOW);
+}
+void Relay2Off(){
+digitalWrite (Relay2, HIGH);
+}
+void Relay3On(){
+digitalWrite (Relay3, LOW);
+}
+void Relay3Off(){                         
+digitalWrite (Relay3, HIGH);
+}
+void Relay4On(){
+digitalWrite (Relay4, LOW);
+}
+void Relay4Off(){
+digitalWrite (Relay4, HIGH);
+}
+void allon() {
+digitalWrite (Relay1, LOW);
+digitalWrite (Relay2, LOW);
+digitalWrite (Relay3, LOW);
+digitalWrite (Relay4, LOW);
+}
+void alloff() {
+digitalWrite (Relay1, HIGH);
+digitalWrite (Relay2, HIGH);
+digitalWrite (Relay3, HIGH);
+digitalWrite (Relay4, HIGH);
+}
 void setup() {
-pinMode(LED1, OUTPUT);
-pinMode(LED2, OUTPUT);
-
-pinMode(buzzer, OUTPUT);
-pinMode(smokeA0, INPUT);
 Serial.begin(9600);
-Blynk.begin(auth, ssid, pass);
-
+pinMode(Relay1, OUTPUT);
+pinMode(Relay2, OUTPUT);
+pinMode(Relay3, OUTPUT);
+pinMode(Relay4, OUTPUT);
 }
 void loop() {
-digitalWrite(LED2, HIGH);
-digitalWrite(LED1, LOW);
-
-int analogSensor = analogRead(smokeA0);
-
-Serial.print("Pin A0: ");
-Serial.println(analogSensor);
-
-if (analogSensor > sensorThres)
-{
-tone(buzzer, 1000, 200);
-
-digitalWrite(LED2, LOW);
-digitalWrite(LED1, HIGH);
-
-Blynk.run();
-Blynk.notify("Alert: Gas leaked");
+while(Serial.available()) {
+delay(10);
+char c=Serial.read();
+if(c=='#')
+{break; }
+voice += c;
 }
-else
+if (voice.length() > 0) {
+Serial.println(voice);
+if (voice == "on" || voice == "Alexa switch on")
 {
-noTone(buzzer);
+allon() ;
 }
-delay(100);
+else if (voice == "off" || voice=="Alexa switch off")
+{
+alloff() ;
+}
+else if(voice =="charger" || voice =="Alexa charger on"){
+Relay1On();
+}
+else if(voice =="charger off" || voice =="Alexa charger off"){
+Relay1Off();
+}
+else if(voice =="TV" || voice =="Alexa TV on"){
+Relay2On();
+}
+else if( voice =="switch off TV" || voice =="Alexa TV off" ){
+Relay2Off();
+}
+else if(voice =="light" || voice =="Alexa light on"){
+Relay3On();
+}
+else if(voice =="switch off light" || voice =="Alexa light off"){
+Relay3Off();
+}
+else if(voice =="fan" || voice =="Alexa fan on"){
+Relay4On();
+}
+else if(voice =="switch off fan" || voice =="Alexa fan off"){
+Relay4Off();
+}
+voice="";
+}
 }
